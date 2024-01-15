@@ -62,6 +62,8 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     final config = AppFlowyBoardConfig(
       groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
       stretchGroupHeight: false,
+      groupMargin: EdgeInsets.fromLTRB(16, 16, 0, 16),
+      
     );
     return AppFlowyBoard(
         controller: controller,
@@ -104,7 +106,8 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
             margin: config.groupBodyPadding,
           );
         },
-        groupConstraints: const BoxConstraints.tightFor(width: 240),
+        
+        groupConstraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
         config: config);
   }
 

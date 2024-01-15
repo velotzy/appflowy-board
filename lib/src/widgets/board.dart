@@ -339,12 +339,12 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
 
     if (index == 0) {
       // remove the left padding of the first group
-      return widget.config.groupMargin.copyWith(left: 0);
+      // return widget.config.groupMargin.copyWith(left: 0);
     }
 
     if (index == widget.dataController.groupDatas.length - 1) {
       // remove the right padding of the last group
-      return widget.config.groupMargin.copyWith(right: 0);
+      // return widget.config.groupMargin.copyWith(right: 0);
     }
 
     return widget.config.groupMargin;

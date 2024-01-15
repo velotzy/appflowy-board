@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:appflowy_board/src/utils/paging_scroll_physic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import '../../utils/log.dart';
@@ -243,7 +244,13 @@ class ReorderFlexState extends State<ReorderFlex>
     }
 
     final child = _wrapContainer(children);
-    return _wrapScrollView(child: child);
+    switch (widget.config.direction) {
+      case Axis.horizontal:
+        return _wrapScrollView(child: child);
+      case Axis.vertical:
+        return _wrapScrollView(child: child);
+    }
+    
   }
 
   @override
@@ -601,15 +608,30 @@ class ReorderFlexState extends State<ReorderFlex>
     if (PrimaryScrollController.maybeOf(context) == null) {
       return child;
     } else {
-      return Scrollbar(
-        controller: _scrollController,
-        thumbVisibility: true,
-        child: SingleChildScrollView(
-          scrollDirection: widget.config.direction,
+      if (widget.config.direction == Axis.horizontal) {
+        return Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: false,
+            child: Container(
+              // color: Colors.red,
+              child: SingleChildScrollView(
+                physics: PagingScrollPhysics(itemDimension: (MediaQuery.of(context).size.width * 0.85) - 16),
+                scrollDirection: widget.config.direction,
+                controller: _scrollController,
+                child: child,
+              ),
+            ));
+      } else {
+        return Scrollbar(
           controller: _scrollController,
-          child: child,
-        ),
-      );
+          thumbVisibility: false,
+          child: SingleChildScrollView(
+            scrollDirection: widget.config.direction,
+            controller: _scrollController,
+            child: child,
+          ),
+        );
+      }
     }
   }
 
