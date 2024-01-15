@@ -90,6 +90,8 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final ScrollController scrollController;
 
   final double groupWidth;
+  
+  
 
   const ReorderDragTarget({
     Key? key,
@@ -108,6 +110,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.groupWidth,
     this.onAccept,
     this.onLeave,
+
     this.draggableTargetBuilder,
     this.draggingOpacity = 0.3,
     this.dragDirection,
@@ -122,6 +125,8 @@ class _ReorderDragTargetState<T extends DragTargetData>
   /// Returns the dragTarget's size
   Size? _draggingFeedbackSize = Size.zero;
 
+  bool enableMovingCard = true;
+
   @override
   Widget build(BuildContext context) {
     Widget dragTarget = DragTarget<T>(
@@ -133,7 +138,14 @@ class _ReorderDragTargetState<T extends DragTargetData>
 
         return widget.onWillAccept(dragTargetData);
       },
-      onAccept: widget.onAccept,
+      onAccept: (data) {
+        enableMovingCard = false;
+        Future.delayed(Duration(seconds: 2), () {
+          enableMovingCard = true;
+        });
+        widget.onAccept!(data);
+
+      },
       onMove: (detail) {
         // Expand the scroll view horizontally when the dragging is near the edge of the scroll view.
         // It is used to move card to the other group.
@@ -142,20 +154,27 @@ class _ReorderDragTargetState<T extends DragTargetData>
         final minScrollExtent = scrollController.position.minScrollExtent;
         const expandDistance = 20;
 
+        // print('detail.offset.dx ${detail.offset.dx}');
+        // print('scroll.position ${scrollController.position}');
+
         if (detail.offset.dx >
-            MediaQuery.of(context).size.width - widget.groupWidth) {
+            MediaQuery.of(context).size.width - widget.groupWidth && enableMovingCard) {
           final newPosition =
               scrollController.offset + expandDistance > maxScrollExtent
                   ? maxScrollExtent
                   : scrollController.offset + expandDistance;
-          widget.scrollController.jumpTo(newPosition);
+                  print('newPosition $newPosition');
+          widget.scrollController.position.moveTo(newPosition);
+          
         }
-        if (detail.offset.dx < 20) {
+        if (detail.offset.dx < 20 && enableMovingCard) {
           final newPosition =
               scrollController.offset - expandDistance < minScrollExtent
                   ? minScrollExtent
                   : scrollController.offset - expandDistance;
-          widget.scrollController.jumpTo(newPosition);
+                  print('newPosition $newPosition');
+          widget.scrollController.position.moveTo(newPosition);
+          
         }
 
         widget.onDragMoved(detail.data, detail.offset);
@@ -178,6 +197,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
     List<dynamic> rejectedCandidates,
   ) {
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
+
       BoxConstraints contentSizeConstraints =
           BoxConstraints.loose(_draggingFeedbackSize!);
       return _buildDraggableFeedback(
